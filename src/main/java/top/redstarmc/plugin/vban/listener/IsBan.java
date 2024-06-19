@@ -1,4 +1,4 @@
-package top.redstarmc.plugin.vban.ban;
+package top.redstarmc.plugin.vban.listener;
 
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.ResultedEvent;
@@ -42,32 +42,4 @@ public class IsBan {
         }
     }
 
-    public String why1(){
-        String why = "";
-        return null;
-    }
-    public String why2(){
-
-        return null;
-    }
-    public String why3(){
-
-        return null;
-    }
-    public String why4(){
-
-        return null;
-    }
-    public String why5(){
-
-        return null;
-    }
-    public String why6(){
-
-        return null;
-    }
-    public String why7(){
-
-        return null;
-    }
 }
