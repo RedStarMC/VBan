@@ -1,6 +1,7 @@
 package top.redstarmc.plugin.vban;
 
 import org.checkerframework.checker.units.qual.C;
+import top.redstarmc.plugin.vban.util.ResultPlayerInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,9 +54,8 @@ public class SQL {
             } catch (SQLException e) {
                 VBan.getVban().getLogger().info(head+"[SQL初始化]数据表创建失败或已经存在！");
             }
-
         } catch (Exception e) {
-            VBan.getVban().getLogger().error(head+"[SQL初始化]数据表创建失败");
+            VBan.getVban().getLogger().error(head+"[SQL初始化]数据库创建失败");
             VBan.getVban().getLogger().warn("现在抛出异常");
             VBan.getVban().getLogger().error(e.getMessage());
         }
@@ -73,29 +73,28 @@ public class SQL {
      * @return 是否被封禁
      * @throws SQLException 6
      */
-    public static List<Map> banWhere(String plyer_name) throws SQLException {
+    public static List<ResultPlayerInfo> banWhere(String plyer_name) throws SQLException {
         PreparedStatement updateSales = c.prepareStatement("SELECT * FROM BANLIST WHERE PLAYER_NAME = ?");
         updateSales.setString(1,plyer_name);
         ResultSet resultSet = updateSales.executeQuery();
+        List<ResultPlayerInfo> resultPlayerInfos = new ArrayList<>();
         if (resultSet.next()){
             while (resultSet.next()) {
                 int id = resultSet.getInt("ID");
                 String why = resultSet.getString("WHY");
-                Map<String,Integer> map = new HashMap<>();
-                map.put(why,1);
-                Map<Integer,Integer> map1 = new HashMap<>();
-                map1.put(id,1);
-                List<Map> listMap = new ArrayList<Map>();
-                listMap.add(map);
-                listMap.add(map1);
-                return listMap;
+                boolean aBoolean = true; //被封禁为真
+                ResultPlayerInfo resultPlayerInfo = new ResultPlayerInfo(plyer_name,why,id,aBoolean);
+                resultPlayerInfos.add(0,resultPlayerInfo);
             }
         }else {
-
+            boolean aBoolean = false;
+            int id = 0 ;
+            ResultPlayerInfo resultPlayerInfo = new ResultPlayerInfo(plyer_name,null,id,aBoolean);
+            resultPlayerInfos.add(0,resultPlayerInfo);
         }
         resultSet.close();
         updateSales.close();
-        return null;
+        return resultPlayerInfos;
     }
 
     /**
