@@ -2,13 +2,17 @@ package top.redstarmc.plugin.vban.listener;
 
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.ResultedEvent;
-import  com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.text.Component;
+import top.redstarmc.plugin.vban.SQL;
 import top.redstarmc.plugin.vban.VBan;
 
-import java.util.UUID;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class IsBan {
     public Component addComponent(int why){
@@ -28,7 +32,18 @@ public class IsBan {
         boolean ban_state = false;
         Player player = event.getPlayer();
         String player_name = player.getUsername();
-        UUID player_uuid = player.getUniqueId();
+        try {
+            List<Map> mapList = SQL.banWhere(player_name);
+            Map map = new HashMap<>();
+            Map map1 = new HashMap<>();
+            assert mapList != null;
+            map = mapList.get(0);
+            map1 = mapList.get(1);
+            String why = (String) map.get(1);
+            int id = (int) map1.get(1);
+        } catch (SQLException e) {
+            VBan.getVban().getLogger().error("无法获得数据库查询结果"+e.getMessage());
+        }
         //查询
         try {
             int why = 0;

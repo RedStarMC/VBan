@@ -23,10 +23,10 @@ import java.sql.SQLException;
         id = "vban",
         name = "VBan",
         authors = {"pingguomc"},
-        version = "0.1.1"
+        version = "0.1.2"
 )
 public class VBan {
-    public final String head = "[Vl封禁插件]";
+    private final String head = "[Vl封禁插件]";
     private static VBan Vban = null;
     private final Logger logger;
     private final ProxyServer server;
@@ -87,5 +87,5 @@ public class VBan {
     public ProxyServer getServer() {
         return server;
     }
-
+    public String getHead(){return head;}
 }

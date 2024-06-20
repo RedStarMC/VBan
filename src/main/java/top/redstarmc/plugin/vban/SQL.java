@@ -5,26 +5,28 @@ import org.checkerframework.checker.units.qual.C;
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class SQL {
     private static Connection c = null;
     private static Statement stmt = null;
-
+    private static final String head = VBan.getVban().getHead();
+    /**
+     * 初始化数据库
+     */
     public static void startSQL() {
         File banlist = new File("./plugins/Vban/banlist.db");
         VBan.getVban().getServer().getConfiguration();
         if (banlist.exists()) {
-            VBan.getVban().getLogger().info("[SQL初始化]文件已经存在");
+            VBan.getVban().getLogger().info(head+"[SQL初始化]文件已经存在");
         } else {
             try {
                 var dir = new File("./plugins/Vban");
                 if (!dir.exists()) dir.mkdirs();
                 banlist.createNewFile();
-                System.out.println("[SQL初始化]文件创建成功");
+                System.out.println(head+"[SQL初始化]文件创建成功");
             } catch (IOException e) {
-                VBan.getVban().getLogger().warn("IO异常");
+                VBan.getVban().getLogger().warn(head+"IO异常");
                 throw new RuntimeException(e);
             }
         }
@@ -47,28 +49,62 @@ public class SQL {
                         " FTIME          INT     NOT NULL)";
                 stmt.execute(sql2);
                 stmt.close();
-                VBan.getVban().getLogger().info("[SQL初始化]数据表创建成功！");
+                VBan.getVban().getLogger().info(head+"[SQL初始化]数据表创建成功！");
             } catch (SQLException e) {
-                VBan.getVban().getLogger().info("[SQL初始化]数据表创建失败或已经存在！");
+                VBan.getVban().getLogger().info(head+"[SQL初始化]数据表创建失败或已经存在！");
             }
 
         } catch (Exception e) {
-            VBan.getVban().getLogger().error("[SQL初始化]数据表创建失败");
+            VBan.getVban().getLogger().error(head+"[SQL初始化]数据表创建失败");
             VBan.getVban().getLogger().warn("现在抛出异常");
             VBan.getVban().getLogger().error(e.getMessage());
         }
     }
-
+    /**
+    关闭数据库
+     */
     public static void CLOSESQL() throws SQLException {
         c.close();
     }
 
-    public List<String> SELECT(String plyer_name) throws SQLException {
-        PreparedStatement updateSales = c.prepareStatement("");
+    /**
+     * 查询封禁数据库
+     * @param plyer_name 玩家名称
+     * @return 是否被封禁
+     * @throws SQLException 6
+     */
+    public static List<Map> banWhere(String plyer_name) throws SQLException {
+        PreparedStatement updateSales = c.prepareStatement("SELECT * FROM BANLIST WHERE PLAYER_NAME = ?");
+        updateSales.setString(1,plyer_name);
+        ResultSet resultSet = updateSales.executeQuery();
+        if (resultSet.next()){
+            while (resultSet.next()) {
+                int id = resultSet.getInt("ID");
+                String why = resultSet.getString("WHY");
+                Map<String,Integer> map = new HashMap<>();
+                map.put(why,1);
+                Map<Integer,Integer> map1 = new HashMap<>();
+                map1.put(id,1);
+                List<Map> listMap = new ArrayList<Map>();
+                listMap.add(map);
+                listMap.add(map1);
+                return listMap;
+            }
+        }else {
 
+        }
+        resultSet.close();
+        updateSales.close();
         return null;
     }
 
+    /**
+     * 插入封禁数据
+     * @param player_name 玩家名称
+     * @param why 原因
+     * @param f_time 被封禁的时间
+     * @throws SQLException 6
+     */
     public void banINSERT(String player_name, String why,long f_time) throws SQLException {
         String CHA ="SELECT count(*) FROM BANLIST";
         ResultSet s = stmt.executeQuery(CHA);
@@ -80,6 +116,7 @@ public class SQL {
         updateSales.setString(3,why);
         updateSales.setLong(4,f_time);
         updateSales.executeUpdate();
+        updateSales.close();
     }
     public void tbanINSERT(String player_name, String why,long time,long f_time) throws SQLException {
         String CHA ="SELECT count(*) FROM TBANLIST";
