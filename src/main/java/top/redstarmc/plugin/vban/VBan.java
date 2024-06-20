@@ -11,11 +11,8 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import org.slf4j.Logger;
-import top.redstarmc.plugin.vban.command.BanList;
+import top.redstarmc.plugin.vban.command.*;
 import top.redstarmc.plugin.vban.listener.IsBan;
-import top.redstarmc.plugin.vban.command.Ban;
-import top.redstarmc.plugin.vban.command.QueryWarn;
-import top.redstarmc.plugin.vban.command.Warn;
 
 import java.sql.SQLException;
 
@@ -67,16 +64,19 @@ public class VBan {
         CommandMeta vwarn_Meta = commandManager.metaBuilder("vwarn").plugin(this).build();
         CommandMeta vquery_warn_Meta = commandManager.metaBuilder("vquerywarn").aliases("vqw").plugin(this).build();
         CommandMeta vbanlist_Meta = commandManager.metaBuilder("vbanlist").aliases("vbl").plugin(this).build();
+        CommandMeta vunban_Meta = commandManager.metaBuilder("vunban").plugin(this).build();
 
         SimpleCommand vban_command = new Ban();
         SimpleCommand vwarn_command = new Warn();
         SimpleCommand vquery_warn_command = new QueryWarn();
         SimpleCommand vban_list_command = new BanList();
+        SimpleCommand vunban_command = new UnBan();
 
         commandManager.register(vban_Meta,vban_command);
         commandManager.register(vwarn_Meta,vwarn_command);
         commandManager.register(vquery_warn_Meta,vquery_warn_command);
         commandManager.register(vbanlist_Meta,vban_list_command);
+        commandManager.register(vunban_Meta,vunban_command);
     }
     public static VBan getVban() {
         return Vban;

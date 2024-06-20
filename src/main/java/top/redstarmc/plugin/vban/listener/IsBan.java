@@ -13,17 +13,17 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static net.kyori.adventure.text.Component.text;
-import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
-import static net.kyori.adventure.text.format.NamedTextColor.RED;
+import static net.kyori.adventure.text.format.NamedTextColor.*;
 
 public class IsBan {
-    private final String server_name = "RedStarMC";
-    private final String server_address = "mc.redstarmc.top";
+    private static final String server_address = "mc.redstarmc.top";
     public static Component addComponent(int id, String why){
         return text()
-                .content("你已被封禁！").color(RED)
-                .content("a").color(GREEN)
-                .append(text(" world!", GREEN))
+                .append(text("你 已 被 永 久 封 禁 ！\n",RED),
+                        text("Red",RED),text("Star",YELLOW),text("MC",GRAY),text("服务器封禁系统",BLUE),
+                        text("原因："+why+"\n", DARK_GREEN),
+                        text("你的封禁ID为:"+id+"\n",BLUE),
+                        text(server_address,RED))
                 .build();
     }
 
