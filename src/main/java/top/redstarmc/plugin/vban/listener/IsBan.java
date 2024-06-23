@@ -3,7 +3,6 @@ package top.redstarmc.plugin.vban.listener;
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
-import com.velocitypowered.api.network.ProtocolVersion;
 import net.kyori.adventure.text.Component;
 import top.redstarmc.plugin.vban.SQL;
 import top.redstarmc.plugin.vban.VBan;
@@ -14,7 +13,6 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import static net.kyori.adventure.text.Component.blockNBT;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 
@@ -23,11 +21,11 @@ public class IsBan {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String time = simpleDateFormat.format(ban_time);
         return text()
-                .append(text("Red",RED),text("Star",YELLOW),text("MC",GRAY),text("服务器封禁系统",AQUA),
+                .append(text("Red",RED),text("Star",YELLOW),text("MC",GRAY),text("服务器封禁系统\n",AQUA),
                         text("你  已  被  永  久  封  禁   ！\n",RED),
-                        text("原因：",WHITE),text(why,GRAY),
-                        text("你的封禁ID为:",WHITE),text(id+"\n",BLUE),
-                        text("你于",WHITE),text(time,GRAY),text("被封禁",WHITE),
+                        text("原因：",WHITE),text(why,GRAY),text("\n"),
+                        text("你的封禁ID为:",WHITE),text(id+"\n",GREEN),
+                        text("你于",WHITE),text(time,GRAY),text("被封禁\n",WHITE),
                         text("申诉邮箱：report@redstarmc.top",RED))
                 .build();
     }
@@ -37,9 +35,10 @@ public class IsBan {
         return text()
                 .append(text("Red",RED),text("Star",YELLOW),text("MC",GRAY),text("服务器封禁系统",AQUA),
                         text("你  已  被  临  时  封  禁   ！\n",RED),
-                        text("原因：",WHITE),text(why,GRAY),
+                        text("原因：",WHITE),text(why,GRAY),text("\n"),
                         text("你的封禁ID为:",WHITE),text(id+"\n",BLUE),
-                        text("你于",WHITE),text(time,GRAY),text("被封禁",WHITE),
+                        text("你于",WHITE),text(time,GRAY),text("被封禁\n",WHITE),
+                        text("距离解封还有"),
                         text("申诉邮箱：report@redstarmc.top",RED))
                 .build();
     }

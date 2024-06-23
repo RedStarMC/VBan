@@ -23,7 +23,7 @@ import static net.kyori.adventure.text.Component.text;
         id = "vban",
         name = "VBan",
         authors = {"pingguomc"},
-        version = "0.1.2"
+        version = "0.1.3"
 )
 public class VBan {
     private final String head = "[Vl封禁插件]";

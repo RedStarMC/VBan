@@ -7,7 +7,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import top.redstarmc.plugin.vban.SQL;
 import top.redstarmc.plugin.vban.VBan;
 
-import javax.inject.Named;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

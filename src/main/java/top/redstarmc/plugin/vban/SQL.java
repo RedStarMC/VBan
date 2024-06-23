@@ -70,28 +70,29 @@ public class SQL {
 
     /**
      * 查询永久封禁数据库
-     * @param plyer_name 玩家名称
+     * @param player_name 玩家名称
      * @return 是否被封禁
      * @throws SQLException 6
      */
-    public static List<ResultPlayerInfo> banWhere(String plyer_name) throws SQLException {
+    public static List<ResultPlayerInfo> banWhere(String player_name) throws SQLException {
         PreparedStatement updateSales = c.prepareStatement("SELECT * FROM BANLIST WHERE PLAYER_NAME = ?");
-        updateSales.setString(1,plyer_name);
+        updateSales.setString(1,player_name);
         ResultSet resultSet = updateSales.executeQuery();
         List<ResultPlayerInfo> resultPlayerInfos = new ArrayList<>();
-        if (resultSet.next()){
-            while (resultSet.next()) {
+        if (resultSet.next()) {
+            do {
                 int id = resultSet.getInt("ID");
                 String why = resultSet.getString("WHY");
                 long ban_time = resultSet.getLong("TIME");
-                boolean aBoolean = true; //被封禁为真
-                ResultPlayerInfo resultPlayerInfo = new ResultPlayerInfo(plyer_name,why,id,aBoolean,ban_time);
-                resultPlayerInfos.add(0,resultPlayerInfo);
-            }
-        }else {
-            boolean aBoolean = false;
-            int id = 0 ;
-            ResultPlayerInfo resultPlayerInfo = new ResultPlayerInfo(plyer_name,null,id,aBoolean,0L);
+                boolean isBanned = true; //被封禁为真
+                ResultPlayerInfo resultPlayerInfo = new ResultPlayerInfo(player_name, why, id, isBanned, ban_time);
+                resultPlayerInfos.add(resultPlayerInfo);
+            } while (resultSet.next());
+        } else {
+            // 处理结果集为空的情况
+            boolean isBanned = false;
+            int id = 0;
+            ResultPlayerInfo resultPlayerInfo = new ResultPlayerInfo(player_name, null, id, isBanned, 0L);
             resultPlayerInfos.add(resultPlayerInfo);
         }
         resultSet.close();
@@ -100,32 +101,32 @@ public class SQL {
     }
     /**
      * 查询临时封禁数据库
-     * @param plyer_name 玩家名称
+     * @param player_name 玩家名称
      * @return 是否被封禁
      * @throws SQLException 6
      */
-    public static List<TResultPlayerInfo> tBanWhere(String plyer_name) throws SQLException {
+    public static List<TResultPlayerInfo> tBanWhere(String player_name) throws SQLException {
         PreparedStatement updateSales = c.prepareStatement("SELECT * FROM TBANLIST WHERE PLAYER_NAME = ?");
-        updateSales.setString(1,plyer_name);
+        updateSales.setString(1,player_name);
         ResultSet resultSet = updateSales.executeQuery();
         List<TResultPlayerInfo> tresultPlayerInfos = new ArrayList<>();
-        if (resultSet.next()){
-            while (resultSet.next()) {
+        if (resultSet.next()) {
+            do {
                 int id = resultSet.getInt("ID");
                 String why = resultSet.getString("WHY");
                 long ban_time = resultSet.getLong("TIME");
                 long unban_time = resultSet.getLong("UNBANTIEM");
                 boolean aBoolean = true; //被封禁为真
-                TResultPlayerInfo resultPlayerInfo = new TResultPlayerInfo(plyer_name,why,id,aBoolean,ban_time,unban_time);
+                TResultPlayerInfo resultPlayerInfo = new TResultPlayerInfo(player_name,why,id,aBoolean,ban_time,unban_time);
                 tresultPlayerInfos.add(resultPlayerInfo);
-            }
-        }else {
+            } while (resultSet.next());
+        } else {
             boolean aBoolean = false;
             int id = 0 ;
             long ban_time = 0;
             long unban_time = 0;
-            TResultPlayerInfo resultPlayerInfo = new TResultPlayerInfo(plyer_name,null,id,aBoolean,ban_time,unban_time);
-            tresultPlayerInfos.add(0,resultPlayerInfo);
+            TResultPlayerInfo resultPlayerInfo = new TResultPlayerInfo(player_name,null,id,aBoolean,ban_time,unban_time);
+            tresultPlayerInfos.add(resultPlayerInfo);
         }
         resultSet.close();
         updateSales.close();
