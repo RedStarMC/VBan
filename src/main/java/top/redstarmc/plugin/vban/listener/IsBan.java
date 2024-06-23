@@ -8,25 +8,41 @@ import net.kyori.adventure.text.Component;
 import top.redstarmc.plugin.vban.SQL;
 import top.redstarmc.plugin.vban.VBan;
 import top.redstarmc.plugin.vban.util.ResultPlayerInfo;
+import top.redstarmc.plugin.vban.util.TResultPlayerInfo;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
+import static net.kyori.adventure.text.Component.blockNBT;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 
 public class IsBan {
-    private static final String server_address = "mc.redstarmc.top";
-    public static Component addComponent(int id, String why){
+    public static Component addBanComponent(int id, String why,long ban_time){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String time = simpleDateFormat.format(ban_time);
         return text()
-                .append(text("你 已 被 永 久 封 禁 ！\n",RED),
-                        text("Red",RED),text("Star",YELLOW),text("MC",GRAY),text("服务器封禁系统",BLUE),
-                        text("原因："+why+"\n", DARK_GREEN),
-                        text("你的封禁ID为:"+id+"\n",BLUE),
-                        text(server_address,RED))
+                .append(text("Red",RED),text("Star",YELLOW),text("MC",GRAY),text("服务器封禁系统",AQUA),
+                        text("你  已  被  永  久  封  禁   ！\n",RED),
+                        text("原因：",WHITE),text(why,GRAY),
+                        text("你的封禁ID为:",WHITE),text(id+"\n",BLUE),
+                        text("你于",WHITE),text(time,GRAY),text("被封禁",WHITE),
+                        text("申诉邮箱：report@redstarmc.top",RED))
                 .build();
     }
-
+    public static Component addTBanComponent(int id, String why,long ban_time,long unban_time){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String time = simpleDateFormat.format(ban_time);
+        return text()
+                .append(text("Red",RED),text("Star",YELLOW),text("MC",GRAY),text("服务器封禁系统",AQUA),
+                        text("你  已  被  临  时  封  禁   ！\n",RED),
+                        text("原因：",WHITE),text(why,GRAY),
+                        text("你的封禁ID为:",WHITE),text(id+"\n",BLUE),
+                        text("你于",WHITE),text(time,GRAY),text("被封禁",WHITE),
+                        text("申诉邮箱：report@redstarmc.top",RED))
+                .build();
+    }
     /**
      * 监听器，观察是否被封禁
      * @param event 加入事件
@@ -34,24 +50,46 @@ public class IsBan {
     @Subscribe(order = PostOrder.FIRST)
     public void onPreLoginEvent(PreLoginEvent event){
         String player_name = event.getUsername();
-        ProtocolVersion protocolVersion = event.getConnection().getProtocolVersion();
-        VBan.getVban().getLogger().info(protocolVersion.toString());
         int id = 0;
         String why = null;
-        boolean aBoolean = false;  //意为未被封禁
+        long ban_time = 0L;
+        long unban_time = 0L;
+        boolean aBanBoolean = false;  //意为未被封禁
+        boolean aTBanBoolean = false;
+        /*
+        查询是否被永久封禁
+         */
         try {
             List<ResultPlayerInfo> resultPlayerInfoList = SQL.banWhere(player_name);
             ResultPlayerInfo resultPlayerInfo = resultPlayerInfoList.get(0);
             id = resultPlayerInfo.getId();
             why = resultPlayerInfo.getWhy();
-            aBoolean = resultPlayerInfo.isaBoolean();
+            ban_time = resultPlayerInfo.getBan_time();
+            aBanBoolean = resultPlayerInfo.isaBoolean();
         } catch (SQLException e) {
             VBan.getVban().getLogger().error(e.getMessage());
         }
-        //查询
         PreLoginEvent.PreLoginComponentResult result = PreLoginEvent.PreLoginComponentResult.allowed();
-        if(aBoolean){
-            result = PreLoginEvent.PreLoginComponentResult.denied(addComponent(id,why));
+        /*
+        被永久封禁直接拒绝，未被永久封禁查询临时封禁
+         */
+        if(aBanBoolean){
+            result = PreLoginEvent.PreLoginComponentResult.denied(addBanComponent(id,why,ban_time));
+        }else  {
+            try{
+                List<TResultPlayerInfo> tResultPlayerInfoList = SQL.tBanWhere(player_name);
+                TResultPlayerInfo tResultPlayerInfo = tResultPlayerInfoList.get(0);
+                id = tResultPlayerInfo.getId();
+                why = tResultPlayerInfo.getWhy();
+                aTBanBoolean = tResultPlayerInfo.isaBoolean();
+                ban_time = tResultPlayerInfo.getBan_time();
+                unban_time = tResultPlayerInfo.getUnban_time();
+            } catch (SQLException e) {
+                VBan.getVban().getLogger().info(e.getMessage());
+            }
+            if (aTBanBoolean){
+                result = PreLoginEvent.PreLoginComponentResult.denied(addTBanComponent(id,why,ban_time,unban_time));
+            }
         }
         event.setResult(result);
     }

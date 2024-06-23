@@ -1,12 +1,13 @@
 package top.redstarmc.plugin.vban;
 
-import org.checkerframework.checker.units.qual.C;
 import top.redstarmc.plugin.vban.util.ResultPlayerInfo;
+import top.redstarmc.plugin.vban.util.TResultPlayerInfo;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SQL {
     private static Connection c = null;
@@ -40,14 +41,14 @@ public class SQL {
                         "(ID INT PRIMARY KEY     NOT NULL," +
                         " PLAYER_NAME    TEXT    NOT NULL, " +
                         " WHY            TEXT    NOT NULL, " +
-                        " FTIME          LONG     NOT NULL)";
+                        " TIME           LONG     NOT NULL)";  //封禁时间
                 stmt.execute(sql1);
                 String sql2 = "CREATE TABLE TBANLIST " +
                         "(ID INT PRIMARY KEY     NOT NULL," +
                         " PLAYER_NAME    TEXT    NOT NULL, " +
                         " WHY            TEXT    NOT NULL, " +
-                        " TIME           LONG     NOT NULL," +
-                        " FTIME          INT     NOT NULL)";
+                        " TIME           LONG     NOT NULL," +  //封禁时间
+                        " UNBANTIME      LONG     NOT NULL)";   //解封时间
                 stmt.execute(sql2);
                 stmt.close();
                 VBan.getVban().getLogger().info(head+"[SQL初始化]数据表创建成功！");
@@ -68,7 +69,7 @@ public class SQL {
     }
 
     /**
-     * 查询封禁数据库
+     * 查询永久封禁数据库
      * @param plyer_name 玩家名称
      * @return 是否被封禁
      * @throws SQLException 6
@@ -82,52 +83,86 @@ public class SQL {
             while (resultSet.next()) {
                 int id = resultSet.getInt("ID");
                 String why = resultSet.getString("WHY");
+                long ban_time = resultSet.getLong("TIME");
                 boolean aBoolean = true; //被封禁为真
-                ResultPlayerInfo resultPlayerInfo = new ResultPlayerInfo(plyer_name,why,id,aBoolean);
+                ResultPlayerInfo resultPlayerInfo = new ResultPlayerInfo(plyer_name,why,id,aBoolean,ban_time);
                 resultPlayerInfos.add(0,resultPlayerInfo);
             }
         }else {
             boolean aBoolean = false;
             int id = 0 ;
-            ResultPlayerInfo resultPlayerInfo = new ResultPlayerInfo(plyer_name,null,id,aBoolean);
-            resultPlayerInfos.add(0,resultPlayerInfo);
+            ResultPlayerInfo resultPlayerInfo = new ResultPlayerInfo(plyer_name,null,id,aBoolean,0L);
+            resultPlayerInfos.add(resultPlayerInfo);
         }
         resultSet.close();
         updateSales.close();
         return resultPlayerInfos;
+    }
+    /**
+     * 查询临时封禁数据库
+     * @param plyer_name 玩家名称
+     * @return 是否被封禁
+     * @throws SQLException 6
+     */
+    public static List<TResultPlayerInfo> tBanWhere(String plyer_name) throws SQLException {
+        PreparedStatement updateSales = c.prepareStatement("SELECT * FROM TBANLIST WHERE PLAYER_NAME = ?");
+        updateSales.setString(1,plyer_name);
+        ResultSet resultSet = updateSales.executeQuery();
+        List<TResultPlayerInfo> tresultPlayerInfos = new ArrayList<>();
+        if (resultSet.next()){
+            while (resultSet.next()) {
+                int id = resultSet.getInt("ID");
+                String why = resultSet.getString("WHY");
+                long ban_time = resultSet.getLong("TIME");
+                long unban_time = resultSet.getLong("UNBANTIEM");
+                boolean aBoolean = true; //被封禁为真
+                TResultPlayerInfo resultPlayerInfo = new TResultPlayerInfo(plyer_name,why,id,aBoolean,ban_time,unban_time);
+                tresultPlayerInfos.add(resultPlayerInfo);
+            }
+        }else {
+            boolean aBoolean = false;
+            int id = 0 ;
+            long ban_time = 0;
+            long unban_time = 0;
+            TResultPlayerInfo resultPlayerInfo = new TResultPlayerInfo(plyer_name,null,id,aBoolean,ban_time,unban_time);
+            tresultPlayerInfos.add(0,resultPlayerInfo);
+        }
+        resultSet.close();
+        updateSales.close();
+        return tresultPlayerInfos;
     }
 
     /**
      * 插入封禁数据
      * @param player_name 玩家名称
      * @param why 原因
-     * @param f_time 被封禁的时间
+     * @param time 被封禁的时间
      * @throws SQLException 6
      */
-    public void banINSERT(String player_name, String why,long f_time) throws SQLException {
+    public void banINSERT(String player_name, String why,long time) throws SQLException {
         String CHA ="SELECT count(*) FROM BANLIST";
         ResultSet s = stmt.executeQuery(CHA);
         int a = s.getInt("count(*)");
         int b = a+1;
-        PreparedStatement updateSales = c.prepareStatement("INSERT INTO BANLIST (ID,PLAYER_NAME,WHY,FTIME) VALUES(?,?,?,?)");
+        PreparedStatement updateSales = c.prepareStatement("INSERT INTO BANLIST (ID,PLAYER_NAME,WHY,TIME) VALUES(?,?,?,?)");
         updateSales.setInt(1, b);
         updateSales.setString(2, player_name);
         updateSales.setString(3,why);
-        updateSales.setLong(4,f_time);
+        updateSales.setLong(4,time);
         updateSales.executeUpdate();
         updateSales.close();
     }
-    public void tbanINSERT(String player_name, String why,long time,long f_time) throws SQLException {
+    public void tbanINSERT(String player_name, String why,long time,long un_ban_time) throws SQLException {
         String CHA ="SELECT count(*) FROM TBANLIST";
         ResultSet s = stmt.executeQuery(CHA);
         int a = s.getInt("count(*)");
         int b = a+1;
-        PreparedStatement updateSales = c.prepareStatement("INSERT INTO TBANLIST (ID,PLAYER_NAME,WHY,TIME,FTIME) VALUES(?,?,?,?,?)");
+        PreparedStatement updateSales = c.prepareStatement("INSERT INTO TBANLIST (ID,PLAYER_NAME,WHY,TIME,UNBANTIME) VALUES(?,?,?,?,?)");
         updateSales.setInt(1, b);
         updateSales.setString(2, player_name);
         updateSales.setString(3,why);
         updateSales.setLong(6,time);
-        updateSales.setLong(5,f_time);
+        updateSales.setLong(5,un_ban_time);
         updateSales.executeUpdate();
     }
 
