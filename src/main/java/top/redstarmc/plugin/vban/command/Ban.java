@@ -35,7 +35,7 @@ public class Ban implements SimpleCommand {
             SQL sql = new SQL();
             try {
                 sql.banINSERT(Cmd_1,Cmd_2,time);
-                source.sendMessage(Component.text("玩家"+Cmd_1+"已被封禁！", NamedTextColor.DARK_RED));
+                source.sendMessage(Component.text("玩家"+Cmd_1+"已被封禁！", NamedTextColor.RED));
                 source.sendMessage(Component.text("原因："+Cmd_2, NamedTextColor.GOLD));
             } catch (SQLException e) {
                 VBan.getVban().getLogger().info("发生错误！"+e.getMessage());

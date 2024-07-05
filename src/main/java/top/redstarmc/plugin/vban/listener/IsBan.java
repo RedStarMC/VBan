@@ -1,8 +1,11 @@
 package top.redstarmc.plugin.vban.listener;
 
 import com.velocitypowered.api.event.PostOrder;
+import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
+import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.text.Component;
 import top.redstarmc.plugin.vban.SQL;
 import top.redstarmc.plugin.vban.VBan;
@@ -92,5 +95,51 @@ public class IsBan {
         }
         event.setResult(result);
     }
-
+    @Subscribe(order = PostOrder.FIRST)
+    public void onLoginEvent(LoginEvent event){
+        Player player = event.getPlayer();
+        String player_name = player.getUsername();
+        int id = 0;
+        String why = null;
+        long ban_time = 0L;
+        long unban_time = 0L;
+        boolean aBanBoolean = false;  //意为未被封禁
+        boolean aTBanBoolean = false;
+        /*
+        查询是否被永久封禁
+         */
+        try {
+            List<ResultPlayerInfo> resultPlayerInfoList = SQL.banWhere(player_name);
+            ResultPlayerInfo resultPlayerInfo = resultPlayerInfoList.get(0);
+            id = resultPlayerInfo.getId();
+            why = resultPlayerInfo.getWhy();
+            ban_time = resultPlayerInfo.getBan_time();
+            aBanBoolean = resultPlayerInfo.isaBoolean();
+        } catch (SQLException e) {
+            VBan.getVban().getLogger().error(e.getMessage());
+        }
+        ResultedEvent.ComponentResult result = ResultedEvent.ComponentResult.allowed();
+        /*
+        被永久封禁直接拒绝，未被永久封禁查询临时封禁
+         */
+        if(aBanBoolean){
+            result = ResultedEvent.ComponentResult.denied(addBanComponent(id,why,ban_time));
+        }else  {
+            try{
+                List<TResultPlayerInfo> tResultPlayerInfoList = SQL.tBanWhere(player_name);
+                TResultPlayerInfo tResultPlayerInfo = tResultPlayerInfoList.get(0);
+                id = tResultPlayerInfo.getId();
+                why = tResultPlayerInfo.getWhy();
+                aTBanBoolean = tResultPlayerInfo.isaBoolean();
+                ban_time = tResultPlayerInfo.getBan_time();
+                unban_time = tResultPlayerInfo.getUnban_time();
+            } catch (SQLException e) {
+                VBan.getVban().getLogger().info(e.getMessage());
+            }
+            if (aTBanBoolean){
+                result = ResultedEvent.ComponentResult.denied(addTBanComponent(id,why,ban_time,unban_time));
+            }
+        }
+        event.setResult(result);
+    }
 }

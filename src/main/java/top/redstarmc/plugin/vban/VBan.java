@@ -10,20 +10,17 @@ import com.velocitypowered.api.event.proxy.ProxyReloadEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.slf4j.Logger;
 import top.redstarmc.plugin.vban.command.*;
 import top.redstarmc.plugin.vban.listener.IsBan;
 
 import java.sql.SQLException;
 
-import static net.kyori.adventure.text.Component.text;
-
 @Plugin(
         id = "vban",
         name = "VBan",
         authors = {"pingguomc"},
-        version = "0.1.3"
+        version = "0.1.4"
 )
 public class VBan {
     private final String head = "[Vl封禁插件]";
@@ -42,7 +39,7 @@ public class VBan {
     public void onProxyInitialization(ProxyInitializeEvent event) {
         Vban = this;
         logger.info("Velocity-ban    速度反向代理-封禁插件");
-        logger.info(String.valueOf(text("RedStarMC特供插件", NamedTextColor.AQUA)));
+        logger.info("  ");
         logger.info("作者： pingguomc");
         logger.info("特别鸣谢： HopeAsd,H3xadecimal");
         logger.info(head+"正 在 初 始 化 插 件…………");

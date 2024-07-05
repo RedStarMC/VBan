@@ -14,7 +14,7 @@ public class BanList implements SimpleCommand {
         CommandSource source = invocation.source();
         String[] args = invocation.arguments();
         if (args.length == 0){
-            source.sendMessage(Component.text("1", NamedTextColor.RED));
+            source.sendMessage(Component.text("暂未更新", NamedTextColor.RED));
         }else{
             source.sendMessage(Component.text("该指令不能输入参数！",NamedTextColor.RED));
         }

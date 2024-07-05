@@ -167,4 +167,10 @@ public class SQL {
         updateSales.executeUpdate();
     }
 
+    public void delBan(int ID) throws SQLException {
+        PreparedStatement updateSales = c.prepareStatement("DELETE FROM BANLIST WHERE ID = ?");
+        updateSales.setInt(1,ID);
+        updateSales.executeUpdate();
+        updateSales.close();
+    }
 }
