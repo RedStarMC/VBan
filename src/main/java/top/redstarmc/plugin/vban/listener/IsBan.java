@@ -1,12 +1,11 @@
 package top.redstarmc.plugin.vban.listener;
 
 import com.velocitypowered.api.event.PostOrder;
-import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
-import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.text.Component;
+import top.redstarmc.plugin.vban.Component.BanComponent;
+import top.redstarmc.plugin.vban.Component.TBanComponet;
 import top.redstarmc.plugin.vban.SQL;
 import top.redstarmc.plugin.vban.VBan;
 import top.redstarmc.plugin.vban.util.ResultPlayerInfo;
@@ -20,31 +19,6 @@ import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.*;
 
 public class IsBan {
-    public static Component addBanComponent(int id, String why,long ban_time){
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String time = simpleDateFormat.format(ban_time);
-        return text()
-                .append(text("Red",RED),text("Star",YELLOW),text("MC",GRAY),text("服务器封禁系统\n",AQUA),
-                        text("你  已  被  永  久  封  禁   ！\n",RED),
-                        text("原因：",WHITE),text(why,GRAY),text("\n"),
-                        text("你的封禁ID为:",WHITE),text(id+"\n",GREEN),
-                        text("你于",WHITE),text(time,GRAY),text("被封禁\n",WHITE),
-                        text("申诉邮箱：report@redstarmc.top",RED))
-                .build();
-    }
-    public static Component addTBanComponent(int id, String why,long ban_time,long unban_time){
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String time = simpleDateFormat.format(ban_time);
-        return text()
-                .append(text("Red",RED),text("Star",YELLOW),text("MC",GRAY),text("服务器封禁系统",AQUA),
-                        text("你  已  被  临  时  封  禁   ！\n",RED),
-                        text("原因：",WHITE),text(why,GRAY),text("\n"),
-                        text("你的封禁ID为:",WHITE),text(id+"\n",BLUE),
-                        text("你于",WHITE),text(time,GRAY),text("被封禁\n",WHITE),
-                        text("距离解封还有"),
-                        text("申诉邮箱：report@redstarmc.top",RED))
-                .build();
-    }
     /**
      * 监听器，观察是否被封禁
      * @param event 加入事件
@@ -76,7 +50,7 @@ public class IsBan {
         被永久封禁直接拒绝，未被永久封禁查询临时封禁
          */
         if(aBanBoolean){
-            result = PreLoginEvent.PreLoginComponentResult.denied(addBanComponent(id,why,ban_time));
+            result = PreLoginEvent.PreLoginComponentResult.denied(BanComponent.returnBanComponentint(id,why,ban_time));
         }else  {
             try{
                 List<TResultPlayerInfo> tResultPlayerInfoList = SQL.tBanWhere(player_name);
@@ -90,7 +64,7 @@ public class IsBan {
                 VBan.getVban().getLogger().info(e.getMessage());
             }
             if (aTBanBoolean){
-                result = PreLoginEvent.PreLoginComponentResult.denied(addTBanComponent(id,why,ban_time,unban_time));
+                result = PreLoginEvent.PreLoginComponentResult.denied(TBanComponet.returnTBanComponent(id,why,ban_time,unban_time));
             }
         }
         event.setResult(result);

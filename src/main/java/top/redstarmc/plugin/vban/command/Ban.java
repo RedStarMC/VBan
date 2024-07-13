@@ -2,13 +2,16 @@ package top.redstarmc.plugin.vban.command;
 
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
+import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import top.redstarmc.plugin.vban.Component.BanComponent;
 import top.redstarmc.plugin.vban.SQL;
 import top.redstarmc.plugin.vban.VBan;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class Ban implements SimpleCommand {
@@ -35,8 +38,10 @@ public class Ban implements SimpleCommand {
             SQL sql = new SQL();
             try {
                 sql.banINSERT(Cmd_1,Cmd_2,time);
+                kickBannedPlayer(Cmd_1);
                 source.sendMessage(Component.text("玩家"+Cmd_1+"已被封禁！", NamedTextColor.RED));
                 source.sendMessage(Component.text("原因："+Cmd_2, NamedTextColor.GOLD));
+
             } catch (SQLException e) {
                 VBan.getVban().getLogger().info("发生错误！"+e.getMessage());
             }
@@ -54,5 +59,14 @@ public class Ban implements SimpleCommand {
     @Override
     public boolean hasPermission(Invocation invocation) {
         return invocation.source().hasPermission("vban.ban");
+    }
+
+
+    public void kickBannedPlayer(String player_name){
+        Optional<Player> aaa = VBan.getVban().getServer().getPlayer(player_name);
+        if (aaa.isEmpty()){
+            return;
+        }
+        aaa.ifPresent(player -> player.disconnect(BanComponent.returnBanComponentint(0, "请重新进入以查看原因", System.currentTimeMillis())));
     }
 }

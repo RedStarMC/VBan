@@ -20,7 +20,7 @@ import java.sql.SQLException;
         id = "vban",
         name = "VBan",
         authors = {"pingguomc"},
-        version = "0.1.4"
+        version = "0.1.5"
 )
 public class VBan {
     private final String head = "[Vl封禁插件]";
